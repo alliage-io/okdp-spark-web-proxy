@@ -18,9 +18,7 @@ ARG GO_VERSION=1.24
 
 FROM golang:${GO_VERSION} AS go-build
 
-ARG GIT_COMMIT="_unset_"
-ARG LDFLAGS="-X localbuild=true"
-ARG TARGETOS="linux"
+ARG TARGETOS
 ARG TARGETARCH
 
 WORKDIR /workspace/spark-web-proxy
@@ -30,17 +28,18 @@ COPY go.* ./
 COPY *.go ./
 COPY internal/ internal/
 COPY cmd/ cmd/
+COPY LICENSE ./
 
-RUN go mod tidy \
-    && go mod download
-RUN --mount=type=cache,target=/root/.cache/go-build \
-    --mount=type=cache,target=/go/pkg \
-    LDFLAGS=${LDFLAGS##-X localbuild=true} GIT_COMMIT=$GIT_COMMIT \
-    CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -a -o spark-web-proxy main.go
+RUN go mod download
+
+RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH \
+    go build -a -o spark-web-proxy main.go
 
 FROM alpine:3.23.2
 
-RUN apk --no-cache add ca-certificates && update-ca-certificates
+RUN apk --no-cache upgrade && \
+    apk --no-cache add ca-certificates && \
+    update-ca-certificates
 
 COPY --from=go-build /workspace/spark-web-proxy /usr/local/bin/
 
