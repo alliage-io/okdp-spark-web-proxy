@@ -38,7 +38,7 @@ Within OKDP, Spark is the compute engine and jobs run as pods on Kubernetes; use
 ## Architecture
 
 <p align="center">
-  <img src="docs/assets/architecture.drawio.png" alt="Spark Web Proxy runtime topology" width="760"/>
+  <img src="docs/assets/architecture.drawio.svg" alt="Spark Web Proxy runtime topology" width="760"/>
 </p>
 
 **Components in the topology:**
